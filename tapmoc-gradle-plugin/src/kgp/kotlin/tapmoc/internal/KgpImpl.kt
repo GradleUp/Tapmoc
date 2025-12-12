@@ -1,9 +1,7 @@
 package tapmoc.internal
 
 import java.lang.reflect.Method
-import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.plugins.AppliedPlugin
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
@@ -13,7 +11,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.plugin.KotlinBaseApiPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
@@ -116,12 +113,24 @@ private class KgpImpl(extension: Any, private val providers: ProviderFactory, pr
     if (isStdlibDefaultDependencyEnabled) {
       /**
        * Downgrade the JVM stdlib version to avoid leaking incompatible metadata
+       *
+       * See https://github.com/Jetbrains/kotlin/blob/7fa1c5fdc7077e52d29505c6fa10a82a43665d7c/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/internal/stdlibDependencyManagement.kt#L97
+       *
+       * XXX: what if there are custom JVM source sets?
        */
       kotlinProjectExtension.sourceSets.findByName("main")?.dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib:${version}")
+        api("org.jetbrains.kotlin:kotlin-stdlib:${version}")
       }
-      kotlinProjectExtension.sourceSets.findByName("jvmMain")?.dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib:${version}")
+      kotlinProjectExtension.sourceSets.findByName("commonMain")?.dependencies {
+        api("org.jetbrains.kotlin:kotlin-stdlib:${version}")
+      }
+      kotlinProjectExtension.sourceSets.configureEach { sourceSet ->
+        if (sourceSet.name.endsWith("Main") && sourceSet.name !in setOf("jvmMain", "commonMain")) {
+          // Non-JVM targets need the latest stdlib
+          sourceSet.dependencies {
+            api("org.jetbrains.kotlin:kotlin-stdlib:${kgpVersion}")
+          }
+        }
       }
     }
   }

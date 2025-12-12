@@ -1,7 +1,5 @@
 package tapmoc.internal
 
-import com.android.tools.r8.internal.bl
-import org.gradle.api.NamedDomainObjectSet
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
@@ -120,38 +118,34 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
   }
 }
 
-private enum class UsageWrapper(val value: String) {
-  JAVA_API(Usage.JAVA_API),
-  JAVA_RUNTIME(Usage.JAVA_RUNTIME)
+private enum class UsageWrapper {
+  JAVA_API,
+  JAVA_RUNTIME
 }
 
 /**
  * Retrieves the outgoing configurations for this project and the specific usage.
- * Because plugins may be applied at any time, and they set the attributes, we need to iterate
- * the ConfigurationContainer only after they have been applied
  *
- * We currently only check the JVM configurations since .klib files do not support compatibility flags yet.
+ * Note: Filtering configurations based on `java-runtime` or `java-api` is racy because configuration attributes are
+ * set after the `configurations.configureEach {}` lambda is called.
+ *
+ * We might want to use variant-aware resolution instead, but I've been burnt before. If multiple outgoingVariants
+ * match, the error is very difficult to debug.
  */
 private fun Project.onEachOutgoingConfiguration(usage: UsageWrapper, block: (Configuration) -> Unit) {
-  var hasKgpOrJava = false
-
-  val callback = {
-    if (!hasKgpOrJava) {
-      hasKgpOrJava = true
-      configurations.matching {
-        it.isCanBeConsumed
-          && it.attributes.getAttribute(Usage.USAGE_ATTRIBUTE)?.name == usage.value
-      }.configureEach {
-        block(it)
+  configurations.configureEach {
+    when (usage) {
+      UsageWrapper.JAVA_API -> {
+        if (it.name in setOf("apiElements", "jvmApiElements")) {
+          block(it)
+        }
+      }
+      UsageWrapper.JAVA_RUNTIME -> {
+        if (it.name in setOf("runtimeElements", "jvmRuntimeElements")) {
+          block(it)
+        }
       }
     }
-  }
-
-  onKgp {
-    callback()
-  }
-  pluginManager.withPlugin("java") {
-    callback()
   }
 }
 

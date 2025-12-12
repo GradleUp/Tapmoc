@@ -101,7 +101,7 @@ fun checkPublication(m2Files: GInputFiles, jvmTarget: Int, kotlinMetadataVersion
     checkPublicationInternal(
       publicationFiles = it.map { it.file },
       jvmTarget = jvmTarget,
-      kotlinMetadataVersion = kotlinMetadataVersion
+      kotlinMetadataVersion = kotlinMetadataVersion,
     )
   }
 }
@@ -134,7 +134,10 @@ private fun checkJarFile(name: String, inputStream: InputStream, jvmTarget: Int,
       } else if (kotlinMetadataVersion != null && entry.name.endsWith(".kotlin_module")) {
         val metadata = KotlinModuleMetadata.read(zis.readAllBytes())
         metadata.version.apply {
-          check("$major.$minor.$patch" == kotlinMetadataVersion) {
+          check(
+            "$major.$minor.$patch" == kotlinMetadataVersion
+              || kotlinMetadataVersion == "2.0.0" && "$major.$minor.$patch" == "1.9.9999", // kotlinc uses 1.9.9999 for 2.0.0. There is a good reason which I cannot remember today.
+          ) {
             "${entry.name}: expected Kotlin metadata version '$kotlinMetadataVersion', got '$major.$minor.$patch'."
           }
         }
@@ -174,7 +177,7 @@ private fun checkPublicationInternal(publicationFiles: List<File>, jvmTarget: In
   } else if (jarFiles.size == 1) {
     found = true
     jarFiles.single().inputStream().use {
-      checkJarFile(jarFiles.single().path,it, jvmTarget, kotlinMetadataVersion)
+      checkJarFile(jarFiles.single().path, it, jvmTarget, kotlinMetadataVersion)
     }
   }
 
