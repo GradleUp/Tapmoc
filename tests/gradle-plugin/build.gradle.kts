@@ -8,6 +8,7 @@ plugins {
 tapmoc {
   java(11)
   kotlin("1.9.0")
+  checkDependencies()
 }
 
 checkPublication {
