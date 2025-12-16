@@ -47,7 +47,7 @@ internal fun tapmocCheckKotlinMetadataVersions(
       val metadata = KotlinModuleMetadata.read(bytes)
       if (metadata.version > supportedVersion) {
         val extra = if (fileWithPath.file.name.startsWith("gradle-api")) {
-          "\nIf you are using the `java-gradle-plugin` plugin, see https://github.com/gradle/gradle/issues/35967 for more details and workarounds."
+          "\nIf you are using the `java-gradle-plugin` plugin, see https://github.com/GradleUp/Tapmoc/issues/69 for more details and workarounds."
         } else {
           ""
         }

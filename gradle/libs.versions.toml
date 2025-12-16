@@ -22,7 +22,7 @@ kotlin-metadata = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version
 cast = "net.mbonnin.cast:cast:0.0.1"
 jsonpathkt = "com.eygraber:jsonpathkt-kotlinx:3.0.2"
 kotlinx-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0"
-asm = "org.ow2.asm:asm:9.9"
+asm = "org.ow2.asm:asm:9.9.1"
 tapmoc = "com.gradleup.tapmoc:tapmoc-gradle-plugin:0.0.3"
 nmcp-tasks = { module = "com.gradleup.nmcp:nmcp-tasks", version.ref = "nmcp" }
 

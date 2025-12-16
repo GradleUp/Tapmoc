@@ -7,12 +7,4 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
       - run: ./gradlew build
-      - run: ./gradlew -p tests/agp8-java build
-      - run: ./gradlew -p tests/agp8-kotlin build
-      - run: ./gradlew -p tests/agp9-kmp build
-      - run: ./gradlew -p tests/agp9-kotlin build
-      - run: ./gradlew -p tests/java build
-      - run: ./gradlew -p tests/jvm build
-      - run: ./gradlew -p tests/wasm-js build
-      - run: ./gradlew -p tests/gradle-plugin build
-      - run: ./gradlew -p tests/kmp build
+      - run: ./scripts/integration-tests.sh
