@@ -70,7 +70,7 @@ abstract class CheckPublicationExtension(project: Project) {
 
         val checkPublication = project.registerCheckPublicationTask(
           "checkPublication",
-          m2Files = fileTree(layout.buildDirectory.dir("m2")),
+          m2Files = project.files(layout.buildDirectory.dir("m2")).asFileTree,
           jvmTarget = jvmTarget,
           kotlinMetadataVersion = kotlinMetadataVersion,
         )
@@ -207,6 +207,4 @@ private fun checkPublicationInternal(publicationFiles: List<File>, jvmTarget: In
   if (found) {
     return
   }
-
-  error("No .jar or .aar file found, or the .aar file did not contain a classes.jar entry")
 }

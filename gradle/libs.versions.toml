@@ -2,7 +2,7 @@
 gratatouille-runtime = "0.1.2"
 gratatouille-build-time = "0.1.3-SNAPSHOT-ece70695061b18da18165c5203a180d1382abcbe"
 # Version of KGP we are using to build tapmoc
-kgp-latest = "2.3.0-RC"
+kgp-latest = "2.3.0"
 ksp = "2.3.3"
 # Version of KGP tapmoc is compatible with at runtime
 kgp-compile-only = "1.9.0"
