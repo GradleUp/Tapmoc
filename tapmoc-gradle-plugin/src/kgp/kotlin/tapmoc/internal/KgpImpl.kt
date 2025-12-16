@@ -10,9 +10,12 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 
 private var method: Method? = null
@@ -115,24 +118,31 @@ private class KgpImpl(extension: Any, private val providers: ProviderFactory, pr
        * Downgrade the JVM stdlib version to avoid leaking incompatible metadata
        *
        * See https://github.com/Jetbrains/kotlin/blob/7fa1c5fdc7077e52d29505c6fa10a82a43665d7c/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/internal/stdlibDependencyManagement.kt#L97
-       *
-       * XXX: what if there are custom JVM source sets?
        */
-      kotlinProjectExtension.sourceSets.findByName("main")?.dependencies {
-        api("org.jetbrains.kotlin:kotlin-stdlib:${version}")
-      }
-      kotlinProjectExtension.sourceSets.findByName("commonMain")?.dependencies {
-        api("org.jetbrains.kotlin:kotlin-stdlib:${version}")
-      }
-      kotlinProjectExtension.sourceSets.configureEach { sourceSet ->
-        if (sourceSet.name.endsWith("Main") && sourceSet.name !in setOf("jvmMain", "commonMain")) {
-          // Non-JVM targets need the latest stdlib
-          sourceSet.dependencies {
-            api("org.jetbrains.kotlin:kotlin-stdlib:${kgpVersion}")
+      kotlinProjectExtension.forEachTarget { target ->
+        target.compilations.filter { it.name != "test" }.forEach { compilation ->
+          compilation.defaultSourceSet.dependencies {
+            if (target.platformType in setOf(KotlinPlatformType.jvm, KotlinPlatformType.androidJvm, KotlinPlatformType.common)) {
+              api("org.jetbrains.kotlin:kotlin-stdlib:${version}")
+            } else {
+              // Non-JVM targets do not support compatibility flags and require the latest version of kotlin-stdlib
+              api("org.jetbrains.kotlin:kotlin-stdlib:${kgpVersion}")
+            }
           }
         }
       }
     }
+  }
+}
+
+/**
+ * See https://github.com/JetBrains/kotlin/blob/32a701d1ee0ffc79eb189b911acc5df4008e9ed4/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/utils/kotlinExtensionUtils.kt#L23
+ */
+private fun KotlinProjectExtension.forEachTarget(block: (KotlinTarget) -> Unit) {
+  when (this) {
+    is KotlinTargetsContainer -> targets.configureEach(block)
+    is KotlinSingleTargetExtension<*> -> block(target)
+    else -> error("Unsupported Kotlin project extension type: ${this::class.simpleName}")
   }
 }
 

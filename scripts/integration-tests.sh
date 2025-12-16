@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+set -e
 set -x
 cd tests/agp8-java && ./gradlew build
 cd ../agp8-kotlin && ./gradlew build
