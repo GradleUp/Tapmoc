@@ -1,6 +1,18 @@
+# 0.3.2
+_2025-12-16_
+
+* [NEW] Ignore class files in `org/gradle/internal/impldep/META-INF/versions/` (#68)
+* [FIX] Fix parsing the java version for Java < 5 (#68)
+* [FIX] Fix downgrading the JVM kotlin-stdlib for KMP projects (#67, #69)
+
 # 0.3.1
 _2025-12-09_
 
+* [NEW] Add a specific error message to warn about `java-gradle-plugin` adding `gradleApi()` in the wrong configuration (#65)
+* [FIX] Support for `com.android.test` and `com.android.dynamic-feature` plugins (#62, #63)
+* [BREAKING] Remove `com.gradleup.compat.patrouille` legacy plugin. It was only provided as a helper for the rename (#64)
+
+Many thanks @simonlebras for catching the `com.android.test` regression 🙏
 
 # 0.3.0
 _2025-12-08_
