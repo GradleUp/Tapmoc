@@ -17,7 +17,7 @@ class Tests {
   fun wrongJavaBytecodeIsDetected() {
     withTestProject("java") {
       gradleRunner(it, "build").buildAndFail().apply {
-        assertTrue(output.contains("targets class file version 55 (Java 11) which is newer than supported <= 52 (Java 8)."))
+        assertTrue(output.contains("targets class file version 55.0 (Java 11) which is newer than supported <= 52 (Java 8)."))
       }
     }
   }

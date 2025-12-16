@@ -15,7 +15,7 @@ internal fun tapmocCheckClassFileVersions(
   warningAsError: Boolean,
   jarFiles: GInputFiles,
   javaVersion: Int?,
-  output: GOutputFile
+  output: GOutputFile,
 ) {
   if (javaVersion == null) {
     output.writeText("Tapmoc: skip checking class file versions as no target Java version is defined")
@@ -27,10 +27,14 @@ internal fun tapmocCheckClassFileVersions(
     ZipInputStream(fileWithPath.file.inputStream()).use { zis ->
       var entry = zis.nextEntry
       while (entry != null) {
-        if (!entry.isDirectory && entry.name.endsWith(".class", ignoreCase = true) && !entry.name.startsWith("META-INF/versions")) {
+        if (!entry.isDirectory
+          && entry.name.endsWith(".class", ignoreCase = true)
+          && !entry.name.startsWith("META-INF/versions")
+          && !entry.name.startsWith("org/gradle/internal/impldep/META-INF/versions/") // See https://github.com/gradle/gradle/issues/24515
+        ) {
           val classBytes = zis.readBytes()
           val cr = ClassReader(classBytes)
-          var classFileVersion = -1
+          var classFileVersion = -1.0
 
           cr.accept(
             object : ClassVisitor(Opcodes.ASM9) {
@@ -40,25 +44,41 @@ internal fun tapmocCheckClassFileVersions(
                 name: String?,
                 signature: String?,
                 superName: String?,
-                interfaces: Array<out String>?
+                interfaces: Array<out String>?,
               ) {
-                classFileVersion = version
+                val minor = version.shr(16)
+                val major = version and 0xFFFF
+
+                // See https://javaalmanac.io/bytecode/versions/
+                classFileVersion = "$major.$minor".toDouble()
               }
             },
-            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
+            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES,
           )
 
           if (classFileVersion > maxAllowedClassFileVersion) {
-            val humanReadable = "class file version $classFileVersion (Java ${classFileVersion - 44})"
+            val foundJavaVersion = if (classFileVersion >= 49) {
+              (classFileVersion - 44).toInt()
+            } else {
+              when (classFileVersion) {
+                45.0 -> "1.0"
+                45.3 -> "1.1"
+                46.0 -> "1.2"
+                47.0 -> "1.3"
+                48.0 -> "1.4"
+                else -> error("Unknown class file version: $classFileVersion")
+              }
+            }
+            val humanReadable = "class file version $classFileVersion (Java ${foundJavaVersion})"
             val expectedHuman = "<= $maxAllowedClassFileVersion (Java $javaVersion)"
             val extra = if (fileWithPath.file.name.startsWith("gradle-api")) {
-              "\nIf you are using the `java-gradle-plugin` plugin, see https://github.com/gradle/gradle/issues/35967 for more details and workarounds."
+              "\nIf you are using the `java-gradle-plugin` plugin, see https://github.com/GradleUp/Tapmoc/issues/69 for more details and workarounds."
             } else {
               ""
             }
             logger.logOrFail(
               warningAsError,
-              "${fileWithPath.file.path}:${entry.name} targets $humanReadable which is newer than supported $expectedHuman.$extra"
+              "${fileWithPath.file.path}:${entry.name} targets $humanReadable which is newer than supported $expectedHuman.$extra",
             )
           }
         }
