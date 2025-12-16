@@ -1,7 +1,6 @@
 package tapmoc.internal
 
-import com.android.tools.r8.internal.bl
-import org.gradle.api.NamedDomainObjectSet
+import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
@@ -21,8 +20,8 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
   private var kotlinMetadataSeverity = Severity.ERROR
   private var kotlinStdlibSeverity = Severity.ERROR
 
-  private val apiDependencies: Provider<Configuration>
-  private val runtimeDependencies: Provider<Configuration>
+  private val apiDependencies: NamedDomainObjectProvider<Configuration>
+  private val runtimeDependencies: NamedDomainObjectProvider<Configuration>
 
   abstract val kotlinVersionProvider: Property<String>
   abstract val javaVersionProvider: Property<Int>
@@ -32,12 +31,16 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
       it.isCanBeConsumed = false
       it.isCanBeResolved = true
       it.isVisible = false
+
+      it.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_API))
     }
 
     runtimeDependencies = project.configurations.register("tapmocRuntimeDependencies") {
       it.isCanBeConsumed = false
       it.isCanBeResolved = true
       it.isVisible = false
+
+      it.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
     }
 
     val checkKotlinMetadatas = project.registerTapmocCheckKotlinMetadataVersionsTask(
@@ -102,8 +105,8 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     }
     kotlinMetadataSeverity = severity
 
-    project.onEachOutgoingConfiguration(UsageWrapper.JAVA_API) {
-      apiDependencies.get().extendsFrom(it)
+    apiDependencies.configure {
+      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
     }
   }
 
@@ -114,45 +117,11 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     }
     kotlinStdlibSeverity = severity
 
-    project.onEachOutgoingConfiguration(UsageWrapper.JAVA_RUNTIME) {
-      runtimeDependencies.get().extendsFrom(it)
+    runtimeDependencies.configure {
+      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
     }
   }
 }
 
-private enum class UsageWrapper(val value: String) {
-  JAVA_API(Usage.JAVA_API),
-  JAVA_RUNTIME(Usage.JAVA_RUNTIME)
-}
-
-/**
- * Retrieves the outgoing configurations for this project and the specific usage.
- * Because plugins may be applied at any time, and they set the attributes, we need to iterate
- * the ConfigurationContainer only after they have been applied
- *
- * We currently only check the JVM configurations since .klib files do not support compatibility flags yet.
- */
-private fun Project.onEachOutgoingConfiguration(usage: UsageWrapper, block: (Configuration) -> Unit) {
-  var hasKgpOrJava = false
-
-  val callback = {
-    if (!hasKgpOrJava) {
-      hasKgpOrJava = true
-      configurations.matching {
-        it.isCanBeConsumed
-          && it.attributes.getAttribute(Usage.USAGE_ATTRIBUTE)?.name == usage.value
-      }.configureEach {
-        block(it)
-      }
-    }
-  }
-
-  onKgp {
-    callback()
-  }
-  pluginManager.withPlugin("java") {
-    callback()
-  }
-}
 
 

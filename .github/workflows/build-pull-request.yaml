@@ -15,3 +15,4 @@ jobs:
       - run: ./gradlew -p tests/jvm build
       - run: ./gradlew -p tests/wasm-js build
       - run: ./gradlew -p tests/gradle-plugin build
+      - run: ./gradlew -p tests/kmp build
