@@ -133,6 +133,10 @@ private class KgpImpl(extension: Any, private val providers: ProviderFactory, pr
       }
     }
   }
+
+  override fun version(project: Project): String {
+    return project.getKotlinPluginVersion()
+  }
 }
 
 /**

@@ -38,6 +38,15 @@ class Tests {
       }
     }
   }
+
+  @Test
+  fun kotlinHigherThanKGPFails() {
+    withTestProject("kotlin-higher-version") {
+      gradleRunner(it, "build").buildAndFail().apply {
+        assertTrue(output.contains("Tapmoc: cannot set compatibility version '2.3.0' because it is higher than the Kotlin Gradle Plugin version '2.2.0'"))
+      }
+    }
+  }
 }
 
 
