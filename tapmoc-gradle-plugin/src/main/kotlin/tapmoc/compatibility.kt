@@ -39,6 +39,11 @@ fun Project.configureKotlinCompatibility(
   }
 
   onKgp {
+    val kgpVersion = it.version(this)
+    // We're using lexicographic comparison here
+    if (version > kgpVersion) {
+      error("Tapmoc: cannot set compatibility version '$version' because it is higher than the Kotlin Gradle Plugin version '$kgpVersion'")
+    }
     it.kotlinCompatibility(version)
   }
 }

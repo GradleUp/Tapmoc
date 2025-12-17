@@ -6,7 +6,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.attributes.Usage
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import tapmoc.Severity
 import tapmoc.TapmocExtension
