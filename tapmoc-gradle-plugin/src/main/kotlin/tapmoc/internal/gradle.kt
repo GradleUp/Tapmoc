@@ -3,7 +3,7 @@ package tapmoc.internal
 internal fun kotlinVersionForGradle(major: Int, minor: Int): String {
   // See https://docs.gradle.org/current/userguide/compatibility.html#kotlin
   return when {
-    major >= 9 && minor >= 2 -> "2.2.0"
+    major >= 9 && minor >= 2 -> "2.2.20"
     major >= 9 && minor >= 0 -> "2.2.0"
     major >= 8 && minor >= 12 -> "2.0.21"
     major >= 8 && minor >= 11 -> "2.0.20"
