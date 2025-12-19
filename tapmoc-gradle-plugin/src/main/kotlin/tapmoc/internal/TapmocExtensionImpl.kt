@@ -87,6 +87,20 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     project.configureKotlinCompatibility(version)
   }
 
+  override fun gradle(gradleVersion: String) {
+    val mam = parseGradleVersion(gradleVersion)
+    kotlin(kotlinVersionForGradle(mam.major, mam.minor))
+    java(javaVersionForGradle(mam.major))
+  }
+
+  override fun javaVersionForGradle(gradleVersion: String): Int {
+    return parseGradleVersion(gradleVersion).let { javaVersionForGradle(it.major) }
+  }
+
+  override fun kotlinVersionForGradle(gradleVersion: String): String {
+    return parseGradleVersion(gradleVersion).let { kotlinVersionForGradle(it.major, it.minor) }
+  }
+
   override fun checkDependencies() {
     checkDependencies(Severity.ERROR)
   }

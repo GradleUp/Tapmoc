@@ -7,13 +7,12 @@ plugins {
 
 tapmoc {
   // Gradle 8.3 uses Kotlin 1.9
-  java(11)
-  kotlin("1.9.0")
+  gradle("8.3")
   checkDependencies()
 }
 
 checkPublication {
-  jvmTarget.set(11)
+  jvmTarget.set(8)
   kotlinMetadataVersion.set("1.9.0")
 }
 

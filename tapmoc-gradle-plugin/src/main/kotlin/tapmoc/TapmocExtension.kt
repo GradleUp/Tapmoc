@@ -28,6 +28,34 @@ interface TapmocExtension {
    */
   fun kotlin(version: String)
 
+  /**
+   * Configures the minimal Gradle version supported.
+   *
+   * This method:
+   * - Calls [kotlin] with the compatible Kotlin version as described in the [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html#kotlin).
+   * - Calls [java] with the compatible Java version as described in the [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html#java_runtime).
+   *
+   * @param gradleVersion the Gradle version to target, specified as a string. Example: "8.14".
+   */
+  fun gradle(gradleVersion: String)
+
+  /**
+   * Returns the minimal version of Java required to run the given Gradle version.
+   *
+   * Gradle versions between 2.0 and 8.14 require Java 8 (but you may run Gradle 8.14 with Java 24 if you want to).
+   * Gradle 9.0.0 requires Java 17.
+   *
+   * See https://docs.gradle.org/current/userguide/compatibility.html#java
+   */
+  fun javaVersionForGradle(gradleVersion: String): Int
+
+  /**
+   * Returns the version of Kotlin embedded in the Gradle distribution.
+   *
+   * See https://docs.gradle.org/current/userguide/compatibility.html#kotlin
+   */
+  fun kotlinVersionForGradle(gradleVersion: String): String
+
   @Deprecated("Use checkDependencies instead.", ReplaceWith("checkDependencies(severity)"))
   fun checkApiDependencies(severity: Severity)
 
