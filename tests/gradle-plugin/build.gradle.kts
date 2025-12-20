@@ -6,14 +6,14 @@ plugins {
 }
 
 tapmoc {
-  // Gradle 8.3 uses Kotlin 1.9
+  // Gradle 8.3 uses Kotlin languageVersion 1.8
   gradle("8.3")
   checkDependencies()
 }
 
 checkPublication {
   jvmTarget.set(8)
-  kotlinMetadataVersion.set("1.9.0")
+  kotlinMetadataVersion.set("1.8.0")
 }
 
 dependencies {
