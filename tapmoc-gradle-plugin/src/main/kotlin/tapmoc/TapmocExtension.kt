@@ -42,7 +42,7 @@ interface TapmocExtension {
   /**
    * Returns the minimal version of Java required to run the given Gradle version.
    *
-   * Gradle versions between 2.0 and 8.14 require Java 8 (but you may run Gradle 8.14 with Java 24 if you want to).
+   * Gradle versions between 2.0 and 8.14 require Java 8.
    * Gradle 9.0.0 requires Java 17.
    *
    * See https://docs.gradle.org/current/userguide/compatibility.html#java
@@ -50,7 +50,7 @@ interface TapmocExtension {
   fun javaVersionForGradle(gradleVersion: String): Int
 
   /**
-   * Returns the version of Kotlin embedded in the Gradle distribution.
+   * Returns the languageVersion used to compile Kotlin build scripts.
    *
    * See https://docs.gradle.org/current/userguide/compatibility.html#kotlin
    */
