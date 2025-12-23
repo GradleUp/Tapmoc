@@ -16,17 +16,19 @@ import tapmoc.task.registerTapmocCheckKotlinMetadataVersionsTask
 import tapmoc.task.registerTapmocCheckKotlinStdlibVersionsTask
 
 internal abstract class TapmocExtensionImpl(private val project: Project) : TapmocExtension {
-  private var kotlinMetadataSeverity = Severity.ERROR
-  private var kotlinStdlibSeverity = Severity.ERROR
-
-  private val apiDependencies: NamedDomainObjectProvider<Configuration>
-  private val runtimeDependencies: NamedDomainObjectProvider<Configuration>
+  abstract val javaClassFilesSeverity: Property<Severity>
+  abstract val kotlinMetadataSeverity: Property<Severity>
+  abstract val kotlinStdlibSeverity: Property<Severity>
 
   abstract val kotlinVersionProvider: Property<String>
   abstract val javaVersionProvider: Property<Int>
 
   init {
-    apiDependencies = project.configurations.register("tapmocApiDependencies") {
+    javaClassFilesSeverity.convention(Severity.WARNING)
+    kotlinMetadataSeverity.convention(Severity.WARNING)
+    kotlinStdlibSeverity.convention(Severity.IGNORE)
+
+    val apiDependencies = project.configurations.register("tapmocApiDependencies") {
       it.isCanBeConsumed = false
       it.isCanBeResolved = true
       it.isVisible = false
@@ -34,7 +36,7 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
       it.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_API))
     }
 
-    runtimeDependencies = project.configurations.register("tapmocRuntimeDependencies") {
+    val runtimeDependencies = project.configurations.register("tapmocRuntimeDependencies") {
       it.isCanBeConsumed = false
       it.isCanBeResolved = true
       it.isVisible = false
@@ -42,14 +44,34 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
       it.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
     }
 
+    apiDependencies.configure {
+      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
+    }
+    runtimeDependencies.configure {
+      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
+    }
+
+
+    val checkJavaClassFiles = project.registerTapmocCheckClassFileVersionsTask(
+      warningAsError = javaClassFilesSeverity.map { it == Severity.ERROR },
+      javaVersion = javaVersionProvider,
+      jarFiles = project.files(apiDependencies, runtimeDependencies)
+    )
+    checkJavaClassFiles.configure {
+      it.enabled = javaClassFilesSeverity.get() != Severity.IGNORE
+    }
+
     val checkKotlinMetadatas = project.registerTapmocCheckKotlinMetadataVersionsTask(
-      warningAsError = project.provider { kotlinMetadataSeverity == Severity.ERROR },
+      warningAsError = kotlinMetadataSeverity.map { it == Severity.ERROR },
       kotlinVersion = kotlinVersionProvider,
       files = project.files(apiDependencies),
     )
+    checkKotlinMetadatas.configure {
+      it.enabled = kotlinMetadataSeverity.get() != Severity.IGNORE
+    }
 
     val checkKotlinStdlibs = project.registerTapmocCheckKotlinStdlibVersionsTask(
-      warningAsError = project.provider { kotlinStdlibSeverity == Severity.ERROR },
+      warningAsError = kotlinStdlibSeverity.map { it == Severity.ERROR },
       kotlinVersion = kotlinVersionProvider,
       kotlinStdlibVersions = runtimeDependencies.map {
         it.incoming.resolutionResult.allComponents
@@ -61,12 +83,9 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
           }.toSet()
       },
     )
-
-    val checkJavaClassFiles = project.registerTapmocCheckClassFileVersionsTask(
-      warningAsError = project.provider { kotlinStdlibSeverity == Severity.ERROR },
-      javaVersion = javaVersionProvider,
-      jarFiles = project.files(apiDependencies, runtimeDependencies)
-    )
+    checkKotlinStdlibs.configure {
+      it.enabled = kotlinStdlibSeverity.get() != Severity.IGNORE
+    }
 
     project.plugins.withType(LifecycleBasePlugin::class.java) {
       project.tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME).configure {
@@ -91,6 +110,8 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     val major = parseGradleMajorVersion(gradleVersion)
     kotlin(kotlinVersionForGradle(major))
     java(javaVersionForGradle(major))
+    checkDependencies(Severity.ERROR)
+    checkKotlinStdlibDependencies(Severity.ERROR)
   }
 
   override fun javaVersionForGradle(gradleVersion: String): Int {
@@ -101,38 +122,36 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     return kotlinVersionForGradle(parseGradleMajorVersion(gradleVersion))
   }
 
+  override fun checkJavaClassFileVersion(severity: Severity) {
+    javaClassFilesSeverity.set(severity)
+  }
+
+  override fun checkKotlinMetadata(severity: Severity) {
+    kotlinMetadataSeverity.set(severity)
+  }
+
+  override fun checkKotlinStdlibDependencies(severity: Severity) {
+    kotlinStdlibSeverity.set(severity)
+  }
+
   override fun checkDependencies() {
     checkDependencies(Severity.ERROR)
   }
 
   @Suppress("DEPRECATION")
   override fun checkDependencies(severity: Severity) {
-    checkApiDependencies(severity)
-    checkRuntimeDependencies(severity)
+    checkJavaClassFileVersion(severity)
+    checkKotlinMetadata(severity)
   }
 
-  @Deprecated("Use checkDependencies instead.", replaceWith = ReplaceWith("checkDependencies(severity)"))
+  @Deprecated("Use checkDependencies instead.", replaceWith = ReplaceWith("checkDependencies(severity)"), level = DeprecationLevel.ERROR)
   override fun checkApiDependencies(severity: Severity) {
-    if (severity == Severity.IGNORE) {
-      return
-    }
-    kotlinMetadataSeverity = severity
-
-    apiDependencies.configure {
-      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
-    }
+    TODO()
   }
 
-  @Deprecated("Use checkDependencies instead.", replaceWith = ReplaceWith("checkDependencies(severity)"))
+  @Deprecated("Use checkDependencies instead.", replaceWith = ReplaceWith("checkDependencies(severity)"), level = DeprecationLevel.ERROR)
   override fun checkRuntimeDependencies(severity: Severity) {
-    if (severity == Severity.IGNORE) {
-      return
-    }
-    kotlinStdlibSeverity = severity
-
-    runtimeDependencies.configure {
-      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
-    }
+    TODO()
   }
 }
 

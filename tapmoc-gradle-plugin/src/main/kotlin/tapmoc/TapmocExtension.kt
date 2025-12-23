@@ -29,11 +29,21 @@ interface TapmocExtension {
   fun kotlin(version: String)
 
   /**
-   * Configures the minimal Gradle version supported.
+   * Configures compatibility flags for the minimal Gradle version supported and enables all dependencies checks.
    *
    * This method:
    * - Calls [kotlin] with the compatible Kotlin version as described in the [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html#kotlin).
    * - Calls [java] with the compatible Java version as described in the [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html#java_runtime).
+   * - Calls `checkDependencies(Severity.ERROR)`
+   * - Calls `checkKotlinStdlibDependencies(Severity.ERROR)`
+   *
+   * It is equivalent to the following code:
+   * ```kotlin
+   * kotlin(kotlinVersionForGradle(gradleVersion))
+   * java(javaVersionForGradle(gradleVersion))
+   * checkDependencies(Severity.ERROR)
+   * checkKotlinStdlibDependencies(Severity.ERROR)
+   * ```
    *
    * @param gradleVersion the Gradle version to target, specified as a string. Example: "8.14".
    */
@@ -56,33 +66,56 @@ interface TapmocExtension {
    */
   fun kotlinVersionForGradle(gradleVersion: String): String
 
-  @Deprecated("Use checkDependencies instead.", ReplaceWith("checkDependencies(severity)"))
-  fun checkApiDependencies(severity: Severity)
-
-  @Deprecated("Use checkDependencies instead.", ReplaceWith("checkDependencies(severity)"))
-  fun checkRuntimeDependencies(severity: Severity)
+  /**
+   * Checks that the api and runtime dependencies are compatible with the target Java version.
+   *
+   * This checks the [class file version](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.1).
+   *
+   * @param severity The severity level for the check. Defaults to `Severity.WARNING`.
+   */
+  fun checkJavaClassFileVersion(severity: Severity)
 
   /**
-   * Walks the consumable configurations exposing a `java-api` or `java-runtime` [usage attribute](https://docs.gradle.org/9.2.1/javadoc/org/gradle/api/attributes/Usage.html)
-   * and checks that dependencies are compatible with the target [java] and [kotlin] values:
+   * Checks that the api dependencies Kotlin metadata is compatible with the target Kotlin version.
    *
-   * - checks that `kotlin-stdlib` is always <= targetKotlinVersion (`java-runtime` only)
-   * - checks that Kotlin metadata is always <= targetKotlinVersion + 1 (`java-api` only).
-   * Note: it is `targetKotlinVersion + 1` because Kotlin has a [best effort n + 1 forward compatibility guarantee](https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format).
-   * - checks that the Java class files version is always <= targetJavaVersion
+   * Thanks to Kotlin [best effort n + 1 forward compatibility guarantee](https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format),
+   * dependencies may contain `kotlinTarget + 1` metadata.
+   *
+   * @param severity The severity level for the check. Defaults to `Severity.WARNING`.
+   */
+  fun checkKotlinMetadata(severity: Severity)
+
+  /**
+   * Checks that the runtime dependencies do not contain a version of `kotlin-stdlib` higher than the target Kotlin version.
+   *
+   * In most cases, `kotlin-stdlib` can be safely upgraded and this check is disabled by default.
+   *
+   * Enable it if your runtime forces a given version of `kotlin-stdlib`. This is the notably case for Gradle plugins.
+   *
+   * @param severity The severity level for the check. Defaults to `Severity.IGNORE`.
+   */
+  fun checkKotlinStdlibDependencies(severity: Severity)
+
+  /**
+   * This is equivalent to calling `checkJavaClassFileVersion(severity)` and `checkKotlinMetadata(severity)`.
+   *
+   * @see checkJavaClassFileVersion
+   * @see checkKotlinMetadata
    */
   fun checkDependencies(severity: Severity)
 
   /**
-   * Walks the consumable configurations exposing a `java-api` or `java-runtime` [usage attribute](https://docs.gradle.org/9.2.1/javadoc/org/gradle/api/attributes/Usage.html)
-   * and checks that dependencies are compatible with the target [java] and [kotlin] values:
+   * This is equivalent to calling `checkDependencies(Severity.ERROR)`.
    *
-   * - checks that `kotlin-stdlib` is always <= targetKotlinVersion (`java-runtime` only)
-   * - checks that Kotlin metadata is always <= targetKotlinVersion + 1 (`java-api` only).
-   * Note: it is `targetKotlinVersion + 1` because Kotlin has a [best effort n + 1 forward compatibility guarantee](https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format).
-   * - checks that the Java class files version is always <= targetJavaVersion
+   * @see checkDependencies
    */
   fun checkDependencies()
+
+  @Deprecated("Use checkDependencies instead.", ReplaceWith("checkDependencies(severity)"), level = DeprecationLevel.ERROR)
+  fun checkApiDependencies(severity: Severity)
+
+  @Deprecated("Use checkDependencies instead.", ReplaceWith("checkDependencies(severity)"), level = DeprecationLevel.ERROR)
+  fun checkRuntimeDependencies(severity: Severity)
 }
 
 enum class Severity {

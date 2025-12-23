@@ -1,3 +1,33 @@
+# 0.4.0
+_date_
+
+## Incompatible dependencies now warn by default
+
+This version changes how dependencies are checked by default:
+* Class files version mismatches now display a warning.
+* Kotlin metadata version mismatches now display a warning.
+
+Note that checking the `kotlin-stdlib` versions is still ignored by default because in most cases, the `kotlin-stdlib` dependency may be safely upgraded at runtime.
+
+## Add `TapmocExtension.gradle(String)`
+
+`TapmocExtension.gradle(String)` makes it easy to configure compatibility for your Gradle plugins:
+
+```kotlin
+tapmoc {
+  // Sets Java and Kotlin flags according to 
+  // https://docs.gradle.org/current/userguide/compatibility.html 
+  gradle("8.14")
+}
+```
+
+`TapmocExtension.gradle(String)` configures the Java and Kotlin compiler flags and enables all dependencies checks with `ERROR` severity. Note this also enables the `kotlin-stdlib` version checks as Gradle forces the `kotlin-stdlib` runtime version.
+
+## All changes
+
+* [NEW] Add `TapmocExtension.gradle()` for configuring Gradle plugins (#35)
+* [NEW] Checking for `kotlin-stdlib` versions in dependencies is now a separate flag (#74)
+
 # 0.3.2
 _2025-12-16_
 
