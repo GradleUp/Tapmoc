@@ -20,10 +20,7 @@ dependencies {
 configureKotlinCompatibility(getKotlinPluginVersion())
 
 gratatouille {
-  codeGeneration {
-    classLoaderIsolation()
-    addDependencies.set(false)
-  }
+  addDependencies = false
 }
 
 extensions.getByType<PublishingExtension>().repositories {

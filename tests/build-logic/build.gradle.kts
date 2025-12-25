@@ -15,7 +15,7 @@ dependencies {
   implementation(libs.cast)
   implementation(libs.kotlin.metadata)
   implementation(libs.asm)
-  implementation(libs.gratatouille.wiring.runtime)
+  implementation(libs.gratatouille.runtime)
   implementation(libs.gratatouille.tasks.runtime)
   implementation(gradleApi())
 }
