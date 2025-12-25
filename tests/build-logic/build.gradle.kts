@@ -21,9 +21,7 @@ dependencies {
 }
 
 gratatouille {
-  codeGeneration {
-    addDependencies.set(false)
-  }
+  addDependencies = false
   pluginLocalPublication("check.publication")
 }
 

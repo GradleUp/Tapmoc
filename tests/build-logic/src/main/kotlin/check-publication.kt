@@ -2,7 +2,7 @@ import cast.cast
 import com.nfeld.jsonpathkt.kotlinx.resolvePathOrNull
 import gratatouille.tasks.GInputFiles
 import gratatouille.tasks.GTask
-import gratatouille.wiring.GExtension
+import gratatouille.GExtension
 import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipInputStream
