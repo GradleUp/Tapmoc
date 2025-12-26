@@ -1,6 +1,6 @@
 [versions]
-gratatouille-runtime = "0.1.2"
-gratatouille-build-time = "0.1.3-SNAPSHOT-ece70695061b18da18165c5203a180d1382abcbe"
+gratatouille-runtime = "0.2.1"
+gratatouille-build-time = "0.2.2-SNAPSHOT-69754c55a2efca3d61b42618af2fbf395df6c471"
 # Version of KGP we are using to build tapmoc
 kgp-latest = "2.3.0"
 ksp = "2.3.3"
@@ -17,7 +17,7 @@ gradle-api = "dev.gradleplugins:gradle-api:8.0"
 agp = "com.android.tools.build:gradle:8.2.0"
 kgp-compile-only = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kgp-compile-only" }
 gratatouille-tasks-runtime = { module = "com.gradleup.gratatouille:gratatouille-tasks-runtime", version.ref = "gratatouille-runtime" }
-gratatouille-wiring-runtime = { module = "com.gradleup.gratatouille:gratatouille-wiring-runtime", version.ref = "gratatouille-runtime" }
+gratatouille-runtime = { module = "com.gradleup.gratatouille:gratatouille-runtime", version.ref = "gratatouille-runtime" }
 kotlin-metadata = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kgp-latest" }
 cast = "net.mbonnin.cast:cast:0.0.1"
 jsonpathkt = "com.eygraber:jsonpathkt-kotlinx:3.0.2"

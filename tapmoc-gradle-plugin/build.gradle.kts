@@ -3,7 +3,7 @@ import com.gradleup.librarian.gradle.Librarian
 plugins {
   id("org.jetbrains.kotlin.jvm")
   id("com.google.devtools.ksp")
-  id("com.gradleup.gratatouille.wiring")
+  id("com.gradleup.gratatouille")
 }
 
 Librarian.module(project)
@@ -48,7 +48,7 @@ optionalPlugins.forEach { (name, dependencyProvider) ->
 
 dependencies {
   compileOnly(libs.gradle.api)
-  implementation(libs.gratatouille.wiring.runtime)
+  implementation(libs.gratatouille.runtime)
   gratatouille(project(":tapmoc-tasks"))
 
   testImplementation(gradleTestKit())
@@ -56,9 +56,7 @@ dependencies {
 }
 
 gratatouille {
-  codeGeneration {
-    addDependencies.set(false)
-  }
+  addDependencies = false
   pluginLocalPublication("com.gradleup.tapmoc")
 }
 
