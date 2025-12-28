@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -13,6 +14,7 @@ val myKotlinMetadataVersion = "2.0.0"
 tapmoc {
   java(myJvmTarget)
   kotlin(myKotlinMetadataVersion)
+  checkDependencies()
 }
 
 android {

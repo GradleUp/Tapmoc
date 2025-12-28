@@ -2,6 +2,7 @@ package tapmoc.internal
 
 import java.lang.reflect.Method
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
@@ -36,7 +37,7 @@ private fun compilerOptionsMethod(): Method? {
   return method
 }
 
-private class KgpImpl(extension: Any, private val providers: ProviderFactory, private val kgpVersion: String) : Kgp {
+private class KgpImpl(private val dependencyHandler: DependencyHandler, extension: Any, private val providers: ProviderFactory, private val kgpVersion: String) : Kgp {
   private val kotlinProjectExtension: KotlinProjectExtension = extension as KotlinProjectExtension
 
   override fun javaCompatibility(version: Int) {
@@ -119,17 +120,25 @@ private class KgpImpl(extension: Any, private val providers: ProviderFactory, pr
        *
        * See https://github.com/Jetbrains/kotlin/blob/7fa1c5fdc7077e52d29505c6fa10a82a43665d7c/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/internal/stdlibDependencyManagement.kt#L97
        */
-      kotlinProjectExtension.forEachTarget { target ->
-        target.compilations.filter { it.name != "test" }.forEach { compilation ->
-          compilation.defaultSourceSet.dependencies {
-            if (target.platformType in setOf(KotlinPlatformType.jvm, KotlinPlatformType.androidJvm, KotlinPlatformType.common)) {
-              api("org.jetbrains.kotlin:kotlin-stdlib:${version}")
-            } else {
-              // Non-JVM targets do not support compatibility flags and require the latest version of kotlin-stdlib
-              api("org.jetbrains.kotlin:kotlin-stdlib:${kgpVersion}")
+      if (kotlinProjectExtension is KotlinMultiplatformExtension) {
+        kotlinProjectExtension.targets.configureEach { target ->
+          target.compilations.matching { it.name != "test" }.configureEach { compilation ->
+            compilation.defaultSourceSet.dependencies {
+              if (target.platformType in setOf(KotlinPlatformType.jvm, KotlinPlatformType.androidJvm, KotlinPlatformType.common)) {
+                api("org.jetbrains.kotlin:kotlin-stdlib:${version}")
+              } else {
+                // Non-JVM targets do not support compatibility flags and require the latest version of kotlin-stdlib
+                api("org.jetbrains.kotlin:kotlin-stdlib:${kgpVersion}")
+              }
             }
           }
         }
+      } else {
+        /**
+         * Android/JVM: adding the stdlib through the compilations does not seem to work,
+         * just add to the `api` configuration
+         */
+        dependencyHandler.add("api", "org.jetbrains.kotlin:kotlin-stdlib:${version}")
       }
     }
   }
@@ -192,7 +201,7 @@ internal fun Project.onKgp(block: (Kgp) -> Unit) {
   plugins.withType(KotlinBasePlugin::class.java).configureEach {
     if(!hasKgp)  {
       hasKgp = true
-      block(KgpImpl(extensions.getByName("kotlin"), providers, getKotlinPluginVersion()))
+      block(KgpImpl(this.dependencies, extensions.getByName("kotlin"), providers, getKotlinPluginVersion()))
     }
   }
 }

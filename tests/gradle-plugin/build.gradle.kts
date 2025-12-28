@@ -3,8 +3,8 @@ import tapmoc.Severity
 plugins {
   id("com.gradleup.tapmoc")
   `embedded-kotlin`
+  id("java-gradle-plugin") // needs to be before check.publication
   id("check.publication")
-  id("java-gradle-plugin")
 }
 
 tapmoc {
