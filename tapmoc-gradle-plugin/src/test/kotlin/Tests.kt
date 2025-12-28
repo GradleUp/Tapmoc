@@ -30,7 +30,7 @@ class Tests {
   }
 
   @Test
-  fun checkDepenenciesDisplaysWarnings() {
+  fun checkDependenciesDisplaysWarnings() {
     withTestProject("check-dependencies") {
       gradleRunner(it, "build", "--continue").build().apply {
         assertTrue(output.contains("contains unsupported metadata"))

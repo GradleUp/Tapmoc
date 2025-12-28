@@ -30,8 +30,8 @@ nmcp-tasks = { module = "com.gradleup.nmcp:nmcp-tasks", version.ref = "nmcp" }
 kgp-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kgp-latest" }
 kgp-android = { id = "org.jetbrains.kotlin.android", version.ref = "kgp-latest" }
 kgp-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kgp-latest" }
-#noinspection SimilarGradleDependency
-agp8 = { id = "com.android.library", version = "8.13.0" }
+#noinspection SimilarGradleDependency, NewerVersionAvailable
+agp8 = { id = "com.android.library", version = "8.12.0" }
 agp9-kmp = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp9" }
 #noinspection SimilarGradleDependency
 agp9-library = { id = "com.android.library", version.ref = "agp9" }
