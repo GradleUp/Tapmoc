@@ -43,8 +43,10 @@ abstract class CheckPublicationExtension(project: Project) {
           }
           publications { publications ->
             pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-              publications.create("maven", MavenPublication::class.java) { publication ->
-                publication.from(components.getByName("java"))
+              if (!pluginManager.hasPlugin("java-gradle-plugin")) { // Do not overwrite the publication
+                publications.create("maven", MavenPublication::class.java) { publication ->
+                  publication.from(components.getByName("java"))
+                }
               }
             }
             pluginManager.withPlugin("com.android.library") {

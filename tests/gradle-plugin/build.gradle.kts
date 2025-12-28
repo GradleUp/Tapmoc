@@ -1,3 +1,5 @@
+import tapmoc.Severity
+
 plugins {
   id("com.gradleup.tapmoc")
   `embedded-kotlin`
@@ -8,7 +10,8 @@ plugins {
 tapmoc {
   // Gradle 8.3 uses Kotlin languageVersion 1.8
   gradle("8.3")
-  checkDependencies()
+  checkDependencies(Severity.ERROR)
+  checkKotlinStdlibDependencies(Severity.ERROR)
 }
 
 checkPublication {

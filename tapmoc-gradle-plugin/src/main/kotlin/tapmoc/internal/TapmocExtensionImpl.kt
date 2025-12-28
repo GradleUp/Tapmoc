@@ -1,6 +1,6 @@
 package tapmoc.internal
 
-import org.gradle.api.NamedDomainObjectProvider
+import org.gradle.api.NamedDomainObjectSet
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
@@ -44,13 +44,19 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
       it.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
     }
 
-    apiDependencies.configure {
-      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
-    }
-    runtimeDependencies.configure {
-      it.dependencies.add(project.dependencies.project(mapOf("path" to project.path)))
+    apiDependencies.configure { configuration ->
+      project.getConfigurations("java-api").forEach {
+        println("tapmocApiDependencies extends from ${it.name}")
+        configuration.extendsFrom(it)
+      }
     }
 
+    runtimeDependencies.configure { configuration ->
+      project.getConfigurations("java-runtime").forEach {
+        println("tapmocRuntimeDependencies extends from ${it.name}")
+        configuration.extendsFrom(it)
+      }
+    }
 
     val checkJavaClassFiles = project.registerTapmocCheckClassFileVersionsTask(
       warningAsError = javaClassFilesSeverity.map { it == Severity.ERROR },
@@ -110,8 +116,6 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     val major = parseGradleMajorVersion(gradleVersion)
     kotlin(kotlinVersionForGradle(major))
     java(javaVersionForGradle(major))
-    checkDependencies(Severity.ERROR)
-    checkKotlinStdlibDependencies(Severity.ERROR)
   }
 
   override fun javaVersionForGradle(gradleVersion: String): Int {
@@ -155,5 +159,15 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
   }
 }
 
-
+/**
+ * Retrieves the outgoing configurations for this project.
+ *
+ * We currently only check the JVM configurations.
+ */
+private fun Project.getConfigurations(usage: String): NamedDomainObjectSet<Configuration> {
+  return configurations.matching {
+    it.isCanBeConsumed
+      && it.attributes.getAttribute(Usage.USAGE_ATTRIBUTE)?.name == usage
+  }
+}
 

@@ -29,23 +29,24 @@ interface TapmocExtension {
   fun kotlin(version: String)
 
   /**
-   * Configures compatibility flags for the minimal Gradle version supported and enables all dependencies checks.
+   * Configures compatibility flags for the minimal Gradle version supported.
    *
    * This method:
    * - Calls [kotlin] with the compatible Kotlin version as described in the [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html#kotlin).
    * - Calls [java] with the compatible Java version as described in the [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html#java_runtime).
-   * - Calls `checkDependencies(Severity.ERROR)`
-   * - Calls `checkKotlinStdlibDependencies(Severity.ERROR)`
    *
    * It is equivalent to the following code:
    * ```kotlin
    * kotlin(kotlinVersionForGradle(gradleVersion))
    * java(javaVersionForGradle(gradleVersion))
-   * checkDependencies(Severity.ERROR)
-   * checkKotlinStdlibDependencies(Severity.ERROR)
    * ```
    *
+   * Note: When building a Gradle plugin, calling `checkDependencies(Severity.ERROR)` and `checkKotlinStdlibDependencies(Severity.ERROR)` is strongly recommended.
+   *
    * @param gradleVersion the Gradle version to target, specified as a string. Example: "8.14".
+   *
+   * @see checkDependencies
+   * @see checkKotlinStdlibDependencies
    */
   fun gradle(gradleVersion: String)
 
