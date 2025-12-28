@@ -1,4 +1,4 @@
-package tapmoc.internal
+package com.gradleup.tapmoc.internal
 
 import java.lang.reflect.Method
 import org.gradle.api.Project

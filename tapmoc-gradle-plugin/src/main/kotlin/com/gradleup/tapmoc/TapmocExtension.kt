@@ -1,4 +1,4 @@
-package tapmoc
+package com.gradleup.tapmoc
 
 interface TapmocExtension {
   /**

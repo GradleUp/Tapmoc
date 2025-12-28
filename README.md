@@ -71,8 +71,8 @@ tapmoc {
 If you have convention plugins, you can also use Tapmoc without all the plugin ceremony:
 
 ```kotlin
-import tapmoc.configureJavaCompatibility
-import tapmoc.configureKotlinCompatibility
+import com.gradleup.tapmoc.configureJavaCompatibility
+import com.gradleup.tapmoc.configureKotlinCompatibility
 
 class ConventionPlugin: Plugin<Project> {
   override fun apply(target: Project) {
