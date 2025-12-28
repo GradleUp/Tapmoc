@@ -132,7 +132,7 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     return kotlinVersionForGradle(parseGradleMajorVersion(gradleVersion))
   }
 
-  override fun checkJavaClassFileVersion(severity: Severity) {
+  override fun checkJavaClassFiles(severity: Severity) {
     javaClassFilesSeverity.set(severity)
   }
 
@@ -140,7 +140,7 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     kotlinMetadataSeverity.set(severity)
   }
 
-  override fun checkKotlinStdlibDependencies(severity: Severity) {
+  override fun checkKotlinStdlibs(severity: Severity) {
     kotlinStdlibSeverity.set(severity)
   }
 
@@ -150,7 +150,7 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
 
   @Suppress("DEPRECATION")
   override fun checkDependencies(severity: Severity) {
-    checkJavaClassFileVersion(severity)
+    checkJavaClassFiles(severity)
     checkKotlinMetadata(severity)
   }
 

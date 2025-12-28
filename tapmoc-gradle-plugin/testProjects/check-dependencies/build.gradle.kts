@@ -15,7 +15,7 @@ extensions.getByType(tapmoc.TapmocExtension::class.java).apply {
   java(11)
   kotlin("1.9.0")
   checkDependencies(Severity.WARNING)
-  checkKotlinStdlibDependencies(Severity.WARNING)
+  checkKotlinStdlibs(Severity.WARNING)
 }
 
 dependencies {

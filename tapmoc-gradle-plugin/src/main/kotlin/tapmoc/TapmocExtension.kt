@@ -41,12 +41,12 @@ interface TapmocExtension {
    * java(javaVersionForGradle(gradleVersion))
    * ```
    *
-   * Note: When building a Gradle plugin, calling `checkDependencies(Severity.ERROR)` and `checkKotlinStdlibDependencies(Severity.ERROR)` is strongly recommended.
+   * Note: When building a Gradle plugin, calling `checkDependencies(Severity.ERROR)` and `checkKotlinStdlibs(Severity.ERROR)` is strongly recommended.
    *
    * @param gradleVersion the Gradle version to target, specified as a string. Example: "8.14".
    *
    * @see checkDependencies
-   * @see checkKotlinStdlibDependencies
+   * @see checkKotlinStdlibs
    */
   fun gradle(gradleVersion: String)
 
@@ -74,7 +74,7 @@ interface TapmocExtension {
    *
    * @param severity The severity level for the check. Defaults to `Severity.IGNORE`.
    */
-  fun checkJavaClassFileVersion(severity: Severity)
+  fun checkJavaClassFiles(severity: Severity)
 
   /**
    * Checks that the api dependencies Kotlin metadata is compatible with the target Kotlin version.
@@ -95,12 +95,12 @@ interface TapmocExtension {
    *
    * @param severity The severity level for the check. Defaults to `Severity.IGNORE`.
    */
-  fun checkKotlinStdlibDependencies(severity: Severity)
+  fun checkKotlinStdlibs(severity: Severity)
 
   /**
-   * This is equivalent to calling `checkJavaClassFileVersion(severity)` and `checkKotlinMetadata(severity)`.
+   * This is equivalent to calling `checkJavaClassFiles(severity)` and `checkKotlinMetadata(severity)`.
    *
-   * @see checkJavaClassFileVersion
+   * @see checkJavaClassFiles
    * @see checkKotlinMetadata
    */
   fun checkDependencies(severity: Severity)
