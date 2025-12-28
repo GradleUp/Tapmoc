@@ -72,7 +72,7 @@ interface TapmocExtension {
    *
    * This checks the [class file version](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.1).
    *
-   * @param severity The severity level for the check. Defaults to `Severity.WARNING`.
+   * @param severity The severity level for the check. Defaults to `Severity.IGNORE`.
    */
   fun checkJavaClassFileVersion(severity: Severity)
 
@@ -82,7 +82,7 @@ interface TapmocExtension {
    * Thanks to Kotlin [best effort n + 1 forward compatibility guarantee](https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format),
    * dependencies may contain `kotlinTarget + 1` metadata.
    *
-   * @param severity The severity level for the check. Defaults to `Severity.WARNING`.
+   * @param severity The severity level for the check. Defaults to `Severity.IGNORE`.
    */
   fun checkKotlinMetadata(severity: Severity)
 
