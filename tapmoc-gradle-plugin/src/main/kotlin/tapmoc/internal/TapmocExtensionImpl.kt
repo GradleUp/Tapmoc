@@ -31,7 +31,7 @@ internal abstract class TapmocExtensionImpl(private val project: Project) : Tapm
     kotlinStdlibSeverity.convention(Severity.IGNORE)
 
     val apiDependencies = configuration("tapmocApiDependencies", Usage.JAVA_API)
-    val runtimeDependencies = configuration("tapmocRuntDependencies", Usage.JAVA_RUNTIME)
+    val runtimeDependencies = configuration("tapmocRuntimeDependencies", Usage.JAVA_RUNTIME)
 
     val checkJavaClassFiles = project.registerTapmocCheckClassFileVersionsTask(
       warningAsError = javaClassFilesSeverity.map { it == Severity.ERROR },
