@@ -1,5 +1,7 @@
 # 0.4.0
-_date_
+_2025-12-29_
+
+New `gradle(String)` helper. New, more granular, way to enable/disable the dependencies checks. As well as a couple of important fixes for Android.   
 
 ## Add `TapmocExtension.gradle(String)` (#35)
 
@@ -7,25 +9,32 @@ _date_
 
 ```kotlin
 tapmoc {
-  // Sets Java and Kotlin flags according to 
-  // https://docs.gradle.org/current/userguide/compatibility.html 
+  /**
+   * Sets Java and Kotlin flags according to
+   * https://docs.gradle.org/current/userguide/compatibility.html
+   * 
+   * This is equivalent to calling `java(8)` and `kotlin("1.8.0")`
+   */
   gradle("8.14")
 }
 ```
 
 ## `checkDependencies()` does not check the `kotlin-stdlib` version by default anymore (#74).
 
-`kotlin-stdlib` can be safely upgraded in most cases (Gradle plugins is the exception) and calling `checkDependencies()` does not enable it any more.
+`kotlin-stdlib` can be safely upgraded in most cases (Gradle plugins is the exception). Calling `checkDependencies()` does not check for mismatched `kotlin-stdlib` versions anymore.
 
 ## add `checkJavaClassFiles()`, `checkKotlinMetadata()` and `checkKotlinStdlibs()` (#74).
 
-You may now enable/disable check individually. `checkDependencies()` calls `checkJavaClassFiles()`
- and `checkKotlinMetadata()`.
+You may now enable/disable check individually. `checkDependencies()` is still present and calls both `checkJavaClassFiles()`and `checkKotlinMetadata()`.
 
 ## All changes
 
 * [NEW] Add `TapmocExtension.gradle()` for configuring Gradle plugins (#35)
 * [NEW] Checking for `kotlin-stdlib` versions in dependencies is now a separate check (#74)
+* [NEW] Fail if the requested Kotlin version is higher than the KGP version (#72)
+* [UPDATE] Update Gratatouille (#75)
+* [FIX] Fix getting the java-api and java-runtime for Android (#74)
+* [FIX] Fix downgrading the `kotlin-stdlib` version for Android (#74)
 
 # 0.3.2
 _2025-12-16_
