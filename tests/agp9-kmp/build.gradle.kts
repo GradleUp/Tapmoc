@@ -1,3 +1,5 @@
+import tapmoc.Severity
+
 plugins {
   alias(libs.plugins.agp9.kmp)
   alias(libs.plugins.kgp.multiplatform)
@@ -11,6 +13,8 @@ val myKotlinMetadataVersion = "2.0.0"
 tapmoc {
   java(myJvmTarget)
   kotlin(myKotlinMetadataVersion)
+  checkDependencies(Severity.ERROR)
+  checkKotlinStdlibs(Severity.ERROR)
 }
 
 kotlin {

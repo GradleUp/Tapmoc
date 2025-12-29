@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
+import tapmoc.Severity
 
 plugins {
   alias(libs.plugins.agp8)
@@ -9,6 +10,8 @@ plugins {
 val myJvmTarget = 11
 tapmoc {
   java(myJvmTarget)
+  checkDependencies(Severity.ERROR)
+  checkKotlinStdlibs(Severity.ERROR)
 }
 
 android {

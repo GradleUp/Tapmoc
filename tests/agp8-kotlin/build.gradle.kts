@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import tapmoc.Severity
 
 plugins {
   alias(libs.plugins.agp8)
@@ -14,7 +15,8 @@ val myKotlinMetadataVersion = "2.0.0"
 tapmoc {
   java(myJvmTarget)
   kotlin(myKotlinMetadataVersion)
-  checkDependencies()
+  checkDependencies(Severity.ERROR)
+  checkKotlinStdlibs(Severity.ERROR)
 }
 
 android {
