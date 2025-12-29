@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import tapmoc.Severity
 
 plugins {
   alias(libs.plugins.agp9.library)
@@ -12,7 +13,10 @@ val myKotlinMetadataVersion = "2.0.0"
 tapmoc {
   java(myJvmTarget)
   kotlin(myKotlinMetadataVersion)
+  checkDependencies(Severity.ERROR)
+  checkKotlinStdlibs(Severity.ERROR)
 }
+
 android {
   publishing {
     singleVariant("release") {
