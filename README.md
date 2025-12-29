@@ -48,7 +48,7 @@ plugins {
   id("com.android.library")
   // etc...
   // And add the Tapmoc plugin
-  id("com.gradleup.tapmoc").version("0.3.2")
+  id("com.gradleup.tapmoc").version("0.4.0")
 }
 
 /*
