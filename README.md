@@ -44,6 +44,7 @@ plugins {
   id("org.jetbrains.kotlin.jvm")
   // or
   id("org.jetbrains.kotlin.multiplatform")
+  id("com.android.kotlin.multiplatform.library")
   // or
   id("com.android.library")
   // etc...
