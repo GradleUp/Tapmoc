@@ -27,7 +27,7 @@ Configuring Java/Kotlin compatibility flags is a mundane task that comes with su
 * Is it "1.8" or "8" or `JavaVersion.VERSION_1_8`?
 * Is it `org.jetbrains.kotlin.gradle.dsl.KotlinVersion` or `kotlin.KotlinVersion`?
 * Is this working with KMP?
-* And more...
+* And more (watch the [KotlinConf 2025 talk](https://www.youtube.com/watch?v=2Vp2QeBZkfo))...
 
 Tapmoc handles all of that with just two simple functions!
 
